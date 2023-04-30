@@ -110,6 +110,7 @@ return [
         'Symfony\Polyfill'
     ],
     'exclude-classes'         => [
+        'WP_HTTP_Response',
         'WP_REST_Request',
         'WP_REST_Server',
         'wpdb',
