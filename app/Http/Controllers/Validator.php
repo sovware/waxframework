@@ -2,7 +2,6 @@
 
 namespace MyPluginNamespace\App\Http\Controllers;
 
-use DateTime;
 use WP_REST_Request;
 
 class Validator {
@@ -14,7 +13,7 @@ class Validator {
 
     public array $errors = [];
 
-    protected array $rules = [
+    protected array $available_rules = [
         'required',
         'email',
         'max',
@@ -31,17 +30,11 @@ class Validator {
         'mac_address',
     ];
 
-    public $date_format = 'Y-m-d';
-
-    public $time_format = 'h:i:sa';
+    use DateTime;
     
     public function __construct( WP_REST_Request $wp_rest_request, Mime $mime ) {
         $this->wp_rest_request = $wp_rest_request;
         $this->mime            = $mime;
-    }
-
-    protected function get_date_time_format() {
-        return $this->date_format . ' ' . $this->time_format;
     }
 
     public function validate( array $rules ) {
@@ -54,6 +47,10 @@ class Validator {
             }
         }
         return $this->errors;
+    }
+
+    public function is_fail() {
+        return ! empty( $this->errors );
     }
 
     protected function validate_rule( string $input_name, string $rule ) {
@@ -304,6 +301,20 @@ class Validator {
         $this->errors[$input_name][] = $message;
     }
 
+    public function confirmed_validator( string $input_name ) {
+        $value1 = $this->wp_rest_request->get_param( $input_name );
+        $value2 = $this->wp_rest_request->get_param( "{$input_name}_confirmation" );
+    
+        if ( $value1 === $value2 ) {
+            return;
+        }
+
+        $message = $this->get_message( 'confirmed' );
+        $message = (string) str_replace( ':attribute', $input_name, $message );
+
+        $this->errors[$input_name][] = $message;
+    }
+
     protected function mimes_validator( string $input_name, string $mimes ) {
         $files = $this->wp_rest_request->get_file_params();
         
@@ -315,65 +326,6 @@ class Validator {
         $message = (string) str_replace( [':attribute', ':values'], [$input_name, $mimes], $message );
         
         $this->errors[$input_name][] = $message;
-    }
-
-    protected function date_validator( string $input_name, string $format = '' ) {
-        if ( ! $this->wp_rest_request->has_param( $input_name ) ) {
-            return;
-        }
-
-        $value = $this->wp_rest_request->get_param( $input_name );
-
-        if ( empty( $format ) ) {
-            $format = $this->date_format;
-        }
-
-        if ( ! empty( $value ) ) {
-            $date = DateTime::createFromFormat( $format, $value );
-
-            if ( $date && $date->format( $format ) === $value ) {
-                return;
-            }
-        }
-
-        $message = $this->get_message( 'date' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
-    }
-
-    public function date_equals_validator( string $input_name, $date ) {
-        if ( ! $this->wp_rest_request->has_param( $input_name ) ) {
-            return;
-        }
-
-        $value = $this->wp_rest_request->get_param( $input_name );
-
-        if ( ! empty( $value ) ) {
-            $format = $this->get_date_format();
-            $date   = DateTime::createFromFormat( $format, $value );
-            error_log($date->format('U'));
-            
-            if ( ! $date || $date->format( $format ) !== $value ) {
-                return;
-            }
-
-
-        }
-    }
-
-    protected function get_date_format() {
-        foreach ( $this->explode_rules as $key => $value ) {
-            $substrings = explode( ':', $value, 2 );
-            if ( $substrings[0] !== 'date' ) {
-                continue;
-            }
-            if ( isset( $substrings[1] ) ) {
-                return $substrings[1];
-            }
-            return $this->date_format;
-        }
-        return $this->date_format;
     }
 
     protected function get_message( $key ) {
