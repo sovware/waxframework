@@ -24,10 +24,7 @@ trait DateTime {
             return;
         }
 
-        $message = $this->get_message( 'date' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'date', [':attribute'], [$input_name] );
     }
 
     public function date_equals_validator( string $input_name, $date ) {
@@ -52,10 +49,7 @@ trait DateTime {
             }
         }
 
-        $message = $this->get_message( 'date_equals' );
-        $message = (string) str_replace( [':attribute', ':date'], [$input_name, $date], $message );
-        
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'date_equals', [':attribute', ':date'], [$input_name, $date] );
     }
 
     public function before_validator( string $input_name, $date ) {
@@ -80,10 +74,7 @@ trait DateTime {
             }
         }
 
-        $message = $this->get_message( 'before' );
-        $message = (string) str_replace( [':attribute', ':date'], [$input_name, $date], $message );
-        
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'before', [':attribute', ':date'], [$input_name, $date] );
     }
 
     public function after_validator( string $input_name, $date ) {
@@ -108,10 +99,7 @@ trait DateTime {
             }
         }
 
-        $message = $this->get_message( 'after' );
-        $message = (string) str_replace( [':attribute', ':date'], [$input_name, $date], $message );
-        
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'after', [':attribute', ':date'], [$input_name, $date] );
     }
 
     protected function before_or_equal_validator( string $input_name, $date ) {
@@ -136,10 +124,7 @@ trait DateTime {
             }
         }
 
-        $message = $this->get_message( 'before_or_equal' );
-        $message = (string) str_replace( [':attribute', ':date'], [$input_name, $date], $message );
-        
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'before_or_equal', [':attribute', ':date'], [$input_name, $date] );
     }
 
     protected function after_or_equal_validator( string $input_name, $date ) {
@@ -164,10 +149,7 @@ trait DateTime {
             }
         }
 
-        $message = $this->get_message( 'after_or_equal' );
-        $message = (string) str_replace( [':attribute', ':date'], [$input_name, $date], $message );
-        
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'after_or_equal', [':attribute', ':date'], [$input_name, $date] );
     }
 
     private function is_it_valid_date( string $date, string $format ) {

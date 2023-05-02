@@ -73,10 +73,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'required' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'required', [':attribute'], [$input_name] );
     }
 
     protected function max_validator( string $input_name, int $max ) {
@@ -84,31 +81,24 @@ class Validator {
         $value = $this->wp_rest_request->get_param( $input_name );
 
         if ( ! is_null( $value ) ) {
-            $is_error = false;
-
             if ( in_array( 'numeric', $this->explode_rules ) || in_array( 'integer', $this->explode_rules ) ) {
                 $value = intval( $value );
 
                 if ( $value > $max ) {
-                    $message  = $this->get_message( 'max.numeric' );
-                    $is_error = true;
+                    $message_key = 'max.numeric';
                 }
             } elseif ( in_array( 'array', $this->explode_rules ) ) {
                 if ( ! is_array( $value ) || count( $value ) > $max ) {
-                    $message  = $this->get_message( 'max.array' );
-                    $is_error = true;
+                    $message_key = 'max.array';
                 }
             } else {
                 if ( strlen( $value ) > $max ) {
-                    $message  = $this->get_message( 'max.string' );
-                    $is_error = true;
+                    $message_key = 'max.string';
                 }
             }
 
-            if ( $is_error ) {
-                $message = str_replace( [':attribute', ':max'], [$input_name, $max], $message );
-
-                $this->errors[$input_name][] = $message;
+            if ( ! empty( $message_key ) ) {
+                $this->set_error( $input_name, $message_key, [':attribute', ':max'], [$input_name, $max] );
             }
 
         } elseif ( in_array( 'file', $this->explode_rules ) ) {
@@ -125,10 +115,7 @@ class Validator {
                 return;
             }
     
-            $message = $this->get_message( 'max.file' );
-            $message = (string) str_replace( [':attribute', ':max'], [$input_name, $max], $message );
-            
-            $this->errors[$input_name][] = $message;
+            $this->set_error( $input_name, 'max.file', [':attribute', ':max'], [$input_name, $max] );
         }
     }
 
@@ -136,31 +123,24 @@ class Validator {
         $value = $this->wp_rest_request->get_param( $input_name );
 
         if ( ! is_null( $value ) ) {
-            $is_error = false;
-
             if ( in_array( 'numeric', $this->explode_rules ) || in_array( 'integer', $this->explode_rules ) ) {
                 $value = intval( $value );
 
                 if ( $value < $min ) {
-                    $message  = $this->get_message( 'min.numeric' );
-                    $is_error = true;
+                    $message_key = 'min.numeric';
                 }
             } elseif ( in_array( 'array', $this->explode_rules ) ) {
                 if ( ! is_array( $value ) || count( $value ) < $min ) {
-                    $message  = $this->get_message( 'min.array' );
-                    $is_error = true;
+                    $message_key = 'min.array';
                 }
             } else {
                 if ( strlen( $value ) < $min ) {
-                    $message  = $this->get_message( 'min.string' );
-                    $is_error = true;
+                    $message_key = 'min.string';
                 }
             }
 
-            if ( $is_error ) {
-                $message = str_replace( [':attribute', ':min'], [$input_name, $min], $message );
-
-                $this->errors[$input_name][] = $message;
+            if ( ! empty( $message_key ) ) {
+                $this->set_error( $input_name, $message_key, [':attribute', ':min'], [$input_name, $min] );
             }
 
         } elseif ( in_array( 'file', $this->explode_rules ) ) {
@@ -176,11 +156,8 @@ class Validator {
             if ( $file_size >= $min ) {
                 return;
             }
-    
-            $message = $this->get_message( 'min.file' );
-            $message = (string) str_replace( [':attribute', ':min'], [$input_name, $min], $message );
-            
-            $this->errors[$input_name][] = $message;
+
+            $this->set_error( $input_name, 'min.file', [':attribute', ':min'], [$input_name, $min] );
         }
     }
 
@@ -191,10 +168,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'boolean' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'boolean', [':attribute'], [$input_name] );
     }
 
     protected function uuid_validator( string $input_name ) {
@@ -204,10 +178,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'uuid' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'uuid', [':attribute'], [$input_name] );
     }
 
     protected function url_validator( string $input_name ) {
@@ -217,10 +188,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'url' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'url', [':attribute'], [$input_name] );
     }
 
     protected function mac_address_validator( string $input_name ) {
@@ -230,10 +198,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'mac_address' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'mac_address', [':attribute'], [$input_name] );
     }
 
     protected function email_validator( string $input_name ) {
@@ -243,10 +208,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'email' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'email', [':attribute'], [$input_name] );
     }
 
     protected function array_validator( string $input_name ) {
@@ -256,10 +218,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'array' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'array', [':attribute'], [$input_name] );
     }
 
     protected function numeric_validator( string $input_name ) {
@@ -269,10 +228,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'numeric' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'numeric', [':attribute'], [$input_name] );
     }
 
     protected function integer_validator( string $input_name ) {
@@ -282,10 +238,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'integer' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'integer', [':attribute'], [$input_name] );
     }
 
     protected function file_validator( string $input_name ) {
@@ -295,10 +248,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'file' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'file', [':attribute'], [$input_name] );
     }
 
     public function confirmed_validator( string $input_name ) {
@@ -309,10 +259,7 @@ class Validator {
             return;
         }
 
-        $message = $this->get_message( 'confirmed' );
-        $message = (string) str_replace( ':attribute', $input_name, $message );
-
-        $this->errors[$input_name][] = $message;
+        $this->set_error( $input_name, 'confirmed', [':attribute'], [$input_name] );
     }
 
     protected function mimes_validator( string $input_name, string $mimes ) {
@@ -321,10 +268,14 @@ class Validator {
         if ( empty( $files[$input_name] ) || $this->mime->validate( $files[$input_name], $mimes ) ) {
             return;
         }
-        
-        $message = $this->get_message( 'mimes' );
-        $message = (string) str_replace( [':attribute', ':values'], [$input_name, $mimes], $message );
-        
+
+        $this->set_error( $input_name, 'mimes', [':attribute', ':values'], [$input_name, $mimes] );
+    }
+
+    private function set_error( string $input_name, string $rule, array $keys, array $values ) {
+        $message = $this->get_message( $rule );
+        $message = (string) str_replace( $keys, $values, $message );
+    
         $this->errors[$input_name][] = $message;
     }
 
