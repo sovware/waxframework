@@ -76,6 +76,20 @@ class Validator {
         $this->set_error( $input_name, 'required', [':attribute'], [$input_name] );
     }
 
+    protected function string_validator( string $input_name ) {
+        if ( ! $this->wp_rest_request->has_param( $input_name ) ) {
+            return;
+        }
+
+        $value = $this->wp_rest_request->get_param( $input_name );
+
+        if ( is_string( $value ) ) {
+            return;
+        }
+
+        $this->set_error( $input_name, 'string', [':attribute'], [$input_name] );
+    }
+    
     protected function max_validator( string $input_name, int $max ) {
 
         $value = $this->wp_rest_request->get_param( $input_name );
@@ -92,7 +106,7 @@ class Validator {
                     $message_key = 'max.array';
                 }
             } else {
-                if ( strlen( $value ) > $max ) {
+                if ( ! is_string( $value ) || strlen( $value ) > $max ) {
                     $message_key = 'max.string';
                 }
             }
@@ -105,7 +119,7 @@ class Validator {
 
             $files = $this->wp_rest_request->get_file_params();
 
-            if ( empty( $files[$input_name] ) ) {
+            if ( empty( $files[$input_name]['size'] ) ) {
                 return;
             }
     
@@ -134,7 +148,7 @@ class Validator {
                     $message_key = 'min.array';
                 }
             } else {
-                if ( strlen( $value ) < $min ) {
+                if ( ! is_string( $value ) ||  strlen( $value ) < $min ) {
                     $message_key = 'min.string';
                 }
             }
@@ -147,7 +161,7 @@ class Validator {
 
             $files = $this->wp_rest_request->get_file_params();
 
-            if ( empty( $files[$input_name] ) ) {
+            if ( empty( $files[$input_name]['size'] ) ) {
                 return;
             }
     
@@ -194,7 +208,7 @@ class Validator {
     protected function mac_address_validator( string $input_name ) {
         $value = $this->wp_rest_request->get_param( $input_name );
 
-        if ( is_null( $value ) || preg_match( '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', $value ) ) {
+        if ( is_null( $value ) || ( is_string( $value ) && preg_match( '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', $value ) ) ) {
             return;
         }
 
@@ -204,7 +218,7 @@ class Validator {
     protected function email_validator( string $input_name ) {
         $value = $this->wp_rest_request->get_param( $input_name );
 
-        if ( is_null( $value ) || is_email( $value ) ) {
+        if ( is_null( $value ) || ( is_string( $value ) && is_email( $value ) ) ) {
             return;
         }
 
@@ -244,7 +258,7 @@ class Validator {
     protected function file_validator( string $input_name ) {
         $files = $this->wp_rest_request->get_file_params();
 
-        if ( ! empty( $files[$input_name] ) ) {
+        if ( ! empty( $files[$input_name]['size'] ) ) {
             return;
         }
 

@@ -152,7 +152,10 @@ trait DateTime {
         $this->set_error( $input_name, 'after_or_equal', [':attribute', ':date'], [$input_name, $date] );
     }
 
-    private function is_it_valid_date( string $date, string $format ) {
+    private function is_it_valid_date( $date, string $format ) {
+        if ( ! is_string( $date ) ) {
+            return false;
+        }
         $input_date = PhpDateTime::createFromFormat( $format, $date );
         return $input_date && $input_date->format( $format ) === $date;
     }
