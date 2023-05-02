@@ -58,6 +58,8 @@ class Validator {
         $method       = "{$rule_explode[0]}_validator";
         if ( method_exists( static::class, $method ) ) {
             static::$method( $input_name, isset( $rule_explode[1] ) ? $rule_explode[1] : null );
+        } else {
+            throw new \Exception( "{$rule_explode[0]} rule not found" );
         }
     }
 
